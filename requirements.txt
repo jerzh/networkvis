@@ -1,0 +1,4 @@
+django
+django-heroku
+gunicorn
+psycopg2-binary
