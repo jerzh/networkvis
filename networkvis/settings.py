@@ -37,7 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    # 'blogger.BloggerConfig', (maybe?)
+    'blogger',
 ]
 
 MIDDLEWARE = [
@@ -71,14 +71,7 @@ TEMPLATES = [
 WSGI_APPLICATION = 'networkvis.wsgi.application'
 
 
-# Database
-# https://docs.djangoproject.com/en/2.1/ref/settings/#databases
-
-import dj_database_url
-
-DATABASES = {
-    'default': dj_database_url.config(conn_max_age=600, ssl_require=False),
-}
+# Database previous location
 
 
 # Password validation
@@ -118,11 +111,20 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
 
 STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static/static_files'),
+    os.path.join(BASE_DIR, 'static'),
 ]
 
 # Configure Django App for Heroku.
-# import django_heroku
-# django_heroku.settings(locals())
+import django_heroku
+django_heroku.settings(locals())
+
+# Database
+# https://docs.djangoproject.com/en/2.1/ref/settings/#databases
+
+import dj_database_url
+
+DATABASES = {
+    'default': dj_database_url.config(conn_max_age=600, ssl_require=False),
+}

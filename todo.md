@@ -1,8 +1,8 @@
 Probably going to use one of these libraries:
 - [D3](https://d3js.org/)
-- [graph-tool](https://graph-tool.skewed.de/static/doc/quickstart.html)
+- ~~[graph-tool](https://graph-tool.skewed.de/static/doc/quickstart.html)~~
 
-I might also have to learn how to use React for this rip
+I might also have to learn how to use [React](https://reactjs.org/) for this rip
 
 Goals (in order of importance):
 - Display a graph
