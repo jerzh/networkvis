@@ -1,0 +1,29 @@
+div {
+  border-radius: 10px;
+  padding: 1px;
+  margin: 20px;
+  box-shadow: 5px 5px 10px gray;
+  opacity: 0.8;
+  transition: 0.25s ease-in-out;
+}
+
+div:hover {
+  opacity: 1;
+}
+
+.title {
+  background-color: red;
+  text-align: center;
+}
+
+.description {
+  background-color: lightgreen;
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+.content {
+  background-color: cyan;
+  padding-left: 10px;
+  padding-right: 10px;
+}

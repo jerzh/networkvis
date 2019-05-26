@@ -1,265 +1,277 @@
 radius = 50;
 rlarge = 5 * radius;
 
-// get browser size
-// var w = window,
-//   d = document,
-//   e = d.documentElement,
-//   g = d.getElementsByTagName('body')[0],
-//   width = w.innerWidth || e.clientWidth || g.clientWidth,
-//   height = w.innerHeight|| e.clientHeight|| g.clientHeight;
+// function to display the network given data
+process = function(data, jqXHR) {
+  // if empty, don't do anything (so we don't get null errors)
+  if ($.isEmptyObject(data)) {
+    return
+  }
 
-// get browser size (with jQuery!)
-// width = $(document).width();
-// height = $(document).height();
+  var nodes_data = data['nodes_data'];
+  var nodes_all = data['nodes_all'];
+  var links_data = data['links_data'];
 
-var nodes_data =  [
-    {"name": "Lillian", "sex": "F"},
-    {"name": "Gordon", "sex": "M"},
-    {"name": "Sylvester", "sex": "M"},
-    {"name": "Mary", "sex": "F"},
-    {"name": "Helen", "sex": "F"},
-    {"name": "Jamie", "sex": "M"},
-    {"name": "Jessie", "sex": "F"},
-    {"name": "Ashton", "sex": "M"},
-    {"name": "Duncan", "sex": "M"},
-    {"name": "Evette", "sex": "F"},
-    {"name": "Mauer", "sex": "M"},
-    {"name": "Fray", "sex": "F"},
-    {"name": "Duke", "sex": "M"},
-    {"name": "Baron", "sex": "M"},
-    {"name": "Infante", "sex": "M"},
-    {"name": "Percy", "sex": "M"},
-    {"name": "Cynthia", "sex": "F"}
-]
+  // set svg size based on radius and number of nodes
+  width = height = 6 * radius * (nodes_data.length ** 0.5) + 2 * rlarge;
 
-// set svg size based on radius and number of nodes
-width = height = 2 * nodes_data.length * radius;
+  // create svg element
+  var svg = d3.select('#graph')
+    .append('svg')
+      // .attr('xmlns', 'http://www.w3.org/2000/svg')
+      .attr('width', width)
+      .attr('height', height);
 
-var links_data = [
-    {"source": "Sylvester", "target": "Gordon", "type":"A"},
-    {"source": "Sylvester", "target": "Lillian", "type":"A"},
-    {"source": "Sylvester", "target": "Mary", "type":"A"},
-    {"source": "Sylvester", "target": "Jamie", "type":"A"},
-    {"source": "Sylvester", "target": "Jessie", "type":"A"},
-    {"source": "Sylvester", "target": "Helen", "type":"A"},
-    {"source": "Helen", "target": "Gordon", "type":"A"},
-    {"source": "Mary", "target": "Lillian", "type":"A"},
-    {"source": "Ashton", "target": "Mary", "type":"A"},
-    {"source": "Duncan", "target": "Jamie", "type":"A"},
-    {"source": "Gordon", "target": "Jessie", "type":"A"},
-    {"source": "Sylvester", "target": "Fray", "type":"E"},
-    {"source": "Fray", "target": "Mauer", "type":"A"},
-    {"source": "Fray", "target": "Cynthia", "type":"A"},
-    {"source": "Fray", "target": "Percy", "type":"A"},
-    {"source": "Percy", "target": "Cynthia", "type":"A"},
-    {"source": "Infante", "target": "Duke", "type":"A"},
-    {"source": "Duke", "target": "Gordon", "type":"A"},
-    {"source": "Duke", "target": "Sylvester", "type":"A"},
-    {"source": "Baron", "target": "Duke", "type":"A"},
-    {"source": "Baron", "target": "Sylvester", "type":"E"},
-    {"source": "Evette", "target": "Sylvester", "type":"E"},
-    {"source": "Cynthia", "target": "Sylvester", "type":"E"},
-    {"source": "Cynthia", "target": "Jamie", "type":"E"},
-    {"source": "Mauer", "target": "Jessie", "type":"E"}
-]
+  // foreignObject test - don't forget to capitalize the o in foreignObject...
+  // var inside = svg.append('foreignObject')
+  //     .attr('x', 100)
+  //     .attr('y', 100)
+  //     .attr('width', 100)
+  //     .attr('height', 100)
+  //   .append('xhtml:p')
+  //     .attr('xmlns', 'http://www.w3.org/1999/xhtml')
+  //     .text('hello');
 
-// create svg element
-var svg = d3.select("#graph")
-  .append("svg")
-    // .attr("xmlns", "http://www.w3.org/2000/svg")
-    .attr("width", width)
-    .attr("height", height);
+  // define simulation with some forces
+  var simulation = d3.forceSimulation()
+    .nodes(nodes_data)
+    .force('charge_force', d3.forceManyBody().strength(-2 * (radius ** 2)))
+    .force('x_force', d3.forceX(width / 2, 0.1))
+    .force('y_force', d3.forceY(height / 2, 0.1))
+    .force('collide_force', d3.forceCollide(radius));
 
-// foreignObject test - don't forget to capitalize the o in foreignObject...
-// var inside = svg.append("foreignObject")
-//     .attr("x", 100)
-//     .attr("y", 100)
-//     .attr("width", 100)
-//     .attr("height", 100)
-//   .append("xhtml:p")
-//     .attr("xmlns", "http://www.w3.org/1999/xhtml")
-//     .text("hello");
-
-// define simulation with some forces
-var simulation = d3.forceSimulation()
-  .nodes(nodes_data)
-  .force("charge_force", d3.forceManyBody().strength(-2 * (radius ** 2)))
-  .force("x_force", d3.forceX(width / 2, 0.1))
-  .force("y_force", d3.forceY(height / 2, 0.1))
-  .force("collide_force", d3.forceCollide(radius));
-
-// function to choose color
-function circleColor(d){
-    if(d.sex =="M"){
-        return "blue";
+  // determine innerHTML of node
+  function innerHTML(d) {
+    if (d.innerHTML != null) {
+      return d.innerHTML;
+    } else if (nodes_all['innerHTML'] != null) {
+      return nodes_all['innerHTML'];
     } else {
-        return "pink";
+      return '';
     }
-}
+  }
 
-// define a force for each link
-var link_force = d3.forceLink(links_data)
-  .id(function(d) { return d.name; })
-  .distance(3 * radius);
+  // define a force for each link
+  var link_force = d3.forceLink(links_data)
+    .id(function(d) { return d.name; })
+    .distance(3 * radius);
 
-// add to simulation
-simulation.force("links", link_force)
+  // add to simulation
+  simulation.force('links', link_force)
 
-// function to choose color
-function linkColor(d){
-    console.log(d);
-    if(d.type == "A"){
-        return "green";
-    } else {
-        return "red";
-    }
-}
+  // draw links
+  var link = svg.append('g')
+      .classed('links', true)
+    .selectAll('line')
+    .data(links_data)
+    .enter()
+    .append('line')
+      .attr('stroke-width', 2)
+      .style('stroke', function(d) { return d.color; });
 
-// draw links
-var link = svg.append("g")
-    .attr("class", "links")
-  .selectAll("line")
-  .data(links_data)
-  .enter()
-  .append("line")
-    .attr("stroke-width", 2)
-    .style("stroke", linkColor);
+  // draw nodes (so nodes go on top)
+  var node = svg.append('g')
+      .classed('nodes', true)
+    .selectAll('circle')
+    .data(nodes_data)
+    .enter()
+    .append('g');
 
-// draw nodes (so nodes go on top)
-var node = svg.append("g")
-    .attr("class", "nodes")
-  .selectAll("circle")
-  .data(nodes_data)
-  .enter()
-  .append("g");
+  node.append('circle')
+    .attr('r', radius)
+    .attr('fill', function(d) { return d.color; });
 
-node.append("circle")
-  .attr("r", radius)
-  .attr("fill", circleColor);
+  // each node has two states: base and expanded
+  // function to set base state: puts text elements
+  function base(n) {
+    // title text
+    n.append('text')
+      .classed('hover-underline', true)
+      .attr('text-anchor', 'middle')
+      .attr('alignment-baseline', 'central')
+      .text(function(d) { return d.name; })
+      .on('click', show);
 
-var text = node.append("text")
-  .attr("text-anchor", "middle")
-  .attr("alignment-baseline", "central")
-  .text("hello")
-  .on("mouseenter", handleMouseEnter);
+    // add button
+    n.filter(function(d) {
+      return d.addable == 'true' || (d.addable == null && nodes_all['addable'] == 'true');
+    })
+      .append('text')
+      .classed('hover-show', true)
+      .attr('text-anchor', 'middle')
+      .attr('transform', 'translate(' + 0 + ',' + (radius - 10) + ')')
+      .attr('font-size', 'large')
+      .html('&nbsp;&nbsp;&nbsp; + &nbsp;&nbsp;&nbsp;')
+      .on('click', add);
 
-function handleMouseEnter(d) {
-  var container = this.parentNode;
+    // delete button
+    n.filter(function(d) {
+      return d.deletable == 'true' || (d.deletable == null && nodes_all['deletable'] == 'true');
+    })
+      .append('text')
+      .classed('hover-show', true)
+      .attr('text-anchor', 'middle')
+      .attr('transform', 'translate(' + 0 + ',-' + (radius - 20) + ')')
+      .attr('font-size', 'large')
+      .html('&nbsp;&nbsp;&nbsp; – &nbsp;&nbsp;&nbsp;')
+      .on('click', del);
 
-  d.fx = d.x;
-  d.fy = d.y;
+    // color text black or white according to how dark the circle is (found online)
+    n.selectAll('text')
+      .style('fill', function(d) {
+        c = getComputedStyle(d3.select(this.parentNode).select('circle').node()).fill.match(/^rgb\s*\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)$/i);
+        return (c[1] * 0.299 + c[2] * 0.587 + c[3] * 0.114) > 186 ? 'black' : 'white';
+      })
+  }
 
-  d3.select(container)
-    .select("circle")
-    .transition()
-    .attr("r", rlarge + radius);
+  // set base state (at start)
+  base(node);
 
-  fObj = d3.select(container)
-    .append("foreignObject");
+  // function to set expand state: put foreignObject
+  function expand(d, n, actualHTML) {
+    var container = n.parentNode;
 
-  fObj.transition()
-    .attr("transform", "translate(-" + rlarge + ",-" + rlarge + ")")
-    .attr("width", 2 * rlarge)
-    .attr("height", 2 * rlarge);
+    // fix node
+    d.fx = d.x;
+    d.fy = d.y;
 
-  content = fObj.append("xhtml:div")
-    .classed("content", true);
+    // expand circle
+    d3.select(container)
+      .select('circle')
+      .transition()
+      .attr('r', rlarge + radius);
 
-  content.append("div")
-      .classed("content-2", true)
-    .append("p")
-      .text("wow much change");
+    // create and expand foreignObject
+    fObj = d3.select(container)
+      .append('foreignObject');
 
-  content.on("mouseleave", function(d) {
-    var container = this.parentNode;
+    fObj.transition()
+      .attr('transform', 'translate(-' + rlarge + ',-' + rlarge + ')')
+      .attr('width', 2 * rlarge)
+      .attr('height', 2 * rlarge);
 
+    // put some divs in foreignObject
+    content = fObj.append('xhtml:div')
+      .classed('content', true)
+      .html(actualHTML);
+
+    // when user leaves expanded node, contract
+    content.on('mouseleave', function(d) {
+      var container = this.parentNode;
+
+      // no longer fixed
+      d.fx = null;
+      d.fy = null;
+
+      // contract circle
+      d3.select(container.parentNode)
+        .select('circle')
+        .transition()
+        .attr('r', radius);
+
+      // contract foreignObject
+      d3.select(container)
+        .transition()
+        .attr('transform', 'translate(-' + 0 + ',-' + 0 + ')')
+        .attr('width', 0)
+        .attr('height', 0)
+        .on('end', function(d) {
+          // set base state again (after contraction)
+          base(d3.select(this.parentNode))
+          // remove foreignObject
+          this.remove();
+        })
+
+      // reset collide_force and restart simulation
+      simulation.force('collide_force', d3.forceCollide(radius))
+        .on('tick', tickActions)
+        // .alpha(1)
+        .restart();
+    })
+
+    // remove text elements
+    d3.select(container)
+      .selectAll('text')
+      .remove();
+
+    // change collide_force to adjust for new node size and restart simulation
+    simulation.force('collide_force', d3.forceCollide().radius(function(d0) {
+      if (d0 == d) {
+        return rlarge + radius;
+      } else {
+        return radius;
+      }
+    }))
+      .on('tick', tickActions)
+      // this line jostles the nodes slightly
+      .alpha(1)
+      .restart();
+  }
+
+  // actualHTML is innerHTML
+  function show(d) {
+    expand(d, this, innerHTML);
+  }
+
+  // actualHTML is addPageForm
+  function add(d) {
+    addPageForm = addPageForm.replace('<br></textarea>', '</textarea>');
+    var form = "<form action='" + formAction + "' method='post' autocomplete='off'>"
+      + addPageForm
+      + "<input type='submit' name='add_page_form' value='Add'> </form>";
+    expand(d, this, form);
+  }
+
+  function del(d) {
+    var form = "<form action='" + formAction + "' method='post' autocomplete='off'>"
+      + delPageForm
+      + "<input type='submit' name='del_page_form' value='Delete'> </form>";
+    expand(d, this, '<h1 style="text-align: center"> Are you sure you want to delete this page? Type its title below to confirm: </h1>' + form);
+  }
+
+  // function to update the locations of the nodes and links after every tick
+  function tickActions() {
+    node.attr('transform', function(d) { return 'translate(' + d.x + ',' + d.y + ')'; });
+
+    // bounding box (decided against it since nodes gravitate to center anyway)
+    // node.attr('transform', function(d) { return 'translate('
+    //   + (d.x = Math.max(radius, Math.min(width - radius, d.x))) + ','
+    //   + (d.y = Math.max(radius, Math.min(height - radius, d.y))) + ')'; });
+
+    link.attr('x1', function(d) { return d.source.x; })
+     .attr('y1', function(d) { return d.source.y; })
+     .attr('x2', function(d) { return d.target.x; })
+     .attr('y2', function(d) { return d.target.y; });
+  }
+
+  // add above function to simulation
+  simulation.on('tick', tickActions);
+
+  // click + drag functionality
+  function drag_start(d) {
+    if (!d3.event.active) simulation.alphaTarget(0.3).restart();
+    d.fx = d.x;
+    d.fy = d.y;
+  }
+
+  function drag_drag(d) {
+    d.fx = d3.event.x;
+    d.fy = d3.event.y;
+  }
+
+  function drag_end(d) {
+    if (!d3.event.active) simulation.alphaTarget(0);
     d.fx = null;
     d.fy = null;
+  }
 
-    d3.select(container.parentNode)
-      .select("circle")
-      .transition()
-      .attr("r", radius);
+  var drag_handler = d3.drag()
+    .on('start', drag_start)
+    .on('drag', drag_drag)
+    .on('end', drag_end);
 
-    d3.select(container)
-      .transition()
-      .attr("transform", "translate(-" + 0 + ",-" + 0 + ")")
-      .attr("width", 0)
-      .attr("height", 0)
-      .on("end", function(d) {
-        d3.select(this.parentNode).append("text")
-          .attr("text-anchor", "middle")
-          .attr("alignment-baseline", "central")
-          .text("hello")
-          .on("mouseenter", handleMouseEnter);
-        this.remove();
-      })
-
-    simulation.force("collide_force", d3.forceCollide(radius))
-      .on("tick", tickActions)
-      // .alpha(1)
-      .restart();
-  })
-
-  d3.select(this)
-    .remove();
-
-  simulation.force("collide_force", d3.forceCollide().radius(function(d0) {
-    if (d0 == d) {
-      return rlarge + radius;
-    } else {
-      return radius;
-    }
-  }))
-    .on("tick", tickActions)
-    .alpha(1)
-    .restart();
+  drag_handler(node);
 }
 
-// function to update the locations of the circles after every tick
-function tickActions() {
-  // wrong radius; will hopefully fix later
-  node.attr("transform", function(d) { return "translate("
-  + Math.max(radius, Math.min(width - radius, d.x)) + ","
-  + Math.max(radius, Math.min(height - radius, d.y)) + ")"; });
-
-  link.attr("x1", function(d) { return d.source.x; })
-   .attr("y1", function(d) { return d.source.y; })
-   .attr("x2", function(d) { return d.target.x; })
-   .attr("y2", function(d) { return d.target.y; });
-}
-
-// add to simulation
-simulation.on("tick", tickActions)
-
-// click + drag functionality
-function drag_start(d) {
-  if (!d3.event.active) simulation.alphaTarget(0.3).restart();
-  d.fx = d.x;
-  d.fy = d.y;
-}
-
-function drag_drag(d) {
-  d.fx = d3.event.x;
-  d.fy = d3.event.y;
-}
-
-function drag_end(d) {
-  if (!d3.event.active) simulation.alphaTarget(0);
-  d.fx = null;
-  d.fy = null;
-}
-
-var drag_handler = d3.drag()
-  .on("start", drag_start)
-  .on("drag", drag_drag)
-  .on("end", drag_end);
-
-drag_handler(node)
-
-// resize when window resized
-// function updateWindow(){
-//     svg.attr("width", $(document).width()).attr("height", $(document).height());
-// }
-// d3.select(window).on('resize.updatesvg', updateWindow);
+// AJAX call to get data from server (and processes data with method above)
+$.getJSON('network_json', {}, process);

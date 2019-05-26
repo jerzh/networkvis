@@ -1,0 +1,19 @@
+{% load static %}
+
+<head>
+  <link rel='stylesheet' type='text/css' href='{% static "blogger/page.css" %}' />
+  <link rel='icon' type='image/png' href='https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Banana-Single.jpg/1200px-Banana-Single.jpg'>
+  <title> {{ title }} </title>
+</head>
+
+<body>
+  <div class='title'>
+    <h1> {{ title }} </h1>
+  </div>
+  <div class='description'>
+    <p> {{ description }} </p>
+  </div>
+  <div class='content'>
+    {{ content|safe }}
+  </div>
+</body>

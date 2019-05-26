@@ -1,16 +1,26 @@
 {% load static %}
 
 <head>
-  <script src="https://d3js.org/d3.v5.min.js"></script>
-  <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script> -->
+  <script src='https://d3js.org/d3.v5.min.js'></script>
+  <script src='https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js'></script>
   <link rel='stylesheet' type='text/css' href='{% static "blogger/index.css" %}' />
+  <link rel='icon' type='image/png' href='https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Banana-Single.jpg/1200px-Banana-Single.jpg'>
+  <title> index </title>
 </head>
 
 <body>
-  <!-- <iframe src='https://www.google.com'> </iframe> -->
-  <!-- why google chrome mean -->
   <!-- <div id='nothing'></div> -->
+  <form action='{% url "blogger:index" %}' method='post'>
+    {% csrf_token %}
+    {{ setting_form }}
+    <input type='submit' name='setting_form' value='Change'>
+  </form>
   <div id='graph'>
   </div>
+  <script type='text/javascript'>
+    var formAction = '{% url "blogger:index" %}';
+    var addPageForm = '{% csrf_token %}' + '{{ add_page_form|addslashes|linebreaks }}';
+    var delPageForm = '{% csrf_token %}' + '{{ del_page_form|addslashes|linebreaks }}';
+  </script>
   <script src='{% static "blogger/index.js" %}'></script>
 </body>
