@@ -1,19 +1,61 @@
 {% load static %}
 
 <head>
+  <script src='https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js'></script>
   <link rel='stylesheet' type='text/css' href='{% static "blogger/page.css" %}' />
   <link rel='icon' type='image/png' href='https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Banana-Single.jpg/1200px-Banana-Single.jpg'>
   <title> {{ title }} </title>
 </head>
 
-<body>
-  <div class='title'>
+<body style='background-color: {{ color }}'>
+  <div id='title' class='section' contenteditable='true'>
     <h1> {{ title }} </h1>
   </div>
-  <div class='description'>
+  <div id='description' class='section padded' contenteditable='true'>
     <p> {{ description }} </p>
   </div>
-  <div class='content'>
+  <div id='content' class='section padded' contenteditable='true'>
     {{ content|safe }}
   </div>
+  <div id='buttons'>
+    <div id='color' class='section button' contenteditable='true'>
+      {{ color }}
+    </div>
+    <form id='save-form' action='{% url "blogger:page" id %}' method='post'>
+      {% csrf_token %}
+      <input id='input-title' type='hidden' name='title'>
+      <input id='input-desc' type='hidden' name='description'>
+      <input id='input-content' type='hidden' name='content'>
+      <input id='input-color' type='hidden' name='color'>
+      <div id='save' class='section button'>
+        Save changes
+      </div>
+    </form>
+    <div id='revert' class='section button'>
+      Revert changes
+    </div>
+    <a href='{% url "blogger:index" %}'>
+      <div class='section button'>
+        Back to index
+      </div>
+    </a>
+  </div>
+  <script>
+    // this script is nasty, no wonder people use jQuery
+    document.getElementById('save').onclick = function() {
+      document.getElementById('input-title')
+        .setAttribute('value', document.getElementById('title').innerText);
+      document.getElementById('input-desc')
+        .setAttribute('value', document.getElementById('description').innerText);
+      document.getElementById('input-content')
+        .setAttribute('value', document.getElementById('content').innerText);
+      document.getElementById('input-color')
+        .setAttribute('value', document.getElementById('color').innerText);
+      document.getElementById('save-form').submit();
+    };
+
+    document.getElementById('revert').onclick = function() {
+      window.location.reload();
+    };
+  </script>
 </body>

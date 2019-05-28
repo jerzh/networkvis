@@ -1,11 +1,13 @@
 radius = 50;
 rlarge = 5 * radius;
 
-// function to display the network given data
-process = function(data, jqXHR) {
+// wow I basically ended up learning an entire new framework for this project
+// (D3) but it was worth it
+// AJAX call to get data from server, then process data
+d3.json('network_json', {}).then(function(data) {
   // if empty, don't do anything (so we don't get null errors)
-  if ($.isEmptyObject(data)) {
-    return
+  if (Object.entries(data).length === 0 && data.constructor === Object) {
+    return;
   }
 
   var nodes_data = data['nodes_data'];
@@ -53,7 +55,13 @@ process = function(data, jqXHR) {
 
   // define a force for each link
   var link_force = d3.forceLink(links_data)
-    .id(function(d) { return d.name; })
+    .id(function(d) {
+      if (d.id != null) {
+        return d.id;
+      } else {
+        return d.name;
+      }
+    })
     .distance(3 * radius);
 
   // add to simulation
@@ -81,6 +89,30 @@ process = function(data, jqXHR) {
     .attr('r', radius)
     .attr('fill', function(d) { return d.color; });
 
+  // click + drag functionality (adding it here so I can enable/disable it for
+  // base state/expand state)
+  function drag_start(d) {
+    if (!d3.event.active) simulation.alphaTarget(0.3).restart();
+    d.fx = d.x;
+    d.fy = d.y;
+  }
+
+  function drag_drag(d) {
+    d.fx = d3.event.x;
+    d.fy = d3.event.y;
+  }
+
+  function drag_end(d) {
+    if (!d3.event.active) simulation.alphaTarget(0);
+    d.fx = null;
+    d.fy = null;
+  }
+
+  var drag_handler = d3.drag()
+    .on('start', drag_start)
+    .on('drag', drag_drag)
+    .on('end', drag_end);
+
   // each node has two states: base and expanded
   // function to set base state: puts text elements
   function base(n) {
@@ -94,8 +126,8 @@ process = function(data, jqXHR) {
 
     // add button
     n.filter(function(d) {
-      return d.addable == 'true' || (d.addable == null && nodes_all['addable'] == 'true');
-    })
+        return d.addable == 'true' || (d.addable == null && nodes_all['addable'] == 'true');
+      })
       .append('text')
       .classed('hover-show', true)
       .attr('text-anchor', 'middle')
@@ -106,8 +138,8 @@ process = function(data, jqXHR) {
 
     // delete button
     n.filter(function(d) {
-      return d.deletable == 'true' || (d.deletable == null && nodes_all['deletable'] == 'true');
-    })
+        return d.deletable == 'true' || (d.deletable == null && nodes_all['deletable'] == 'true');
+      })
       .append('text')
       .classed('hover-show', true)
       .attr('text-anchor', 'middle')
@@ -122,6 +154,9 @@ process = function(data, jqXHR) {
         c = getComputedStyle(d3.select(this.parentNode).select('circle').node()).fill.match(/^rgb\s*\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)$/i);
         return (c[1] * 0.299 + c[2] * 0.587 + c[3] * 0.114) > 186 ? 'black' : 'white';
       })
+
+    // turn on dragging functionality
+    drag_handler(n);
   }
 
   // set base state (at start)
@@ -196,16 +231,19 @@ process = function(data, jqXHR) {
 
     // change collide_force to adjust for new node size and restart simulation
     simulation.force('collide_force', d3.forceCollide().radius(function(d0) {
-      if (d0 == d) {
-        return rlarge + radius;
-      } else {
-        return radius;
-      }
-    }))
+        if (d0 == d) {
+          return rlarge + radius;
+        } else {
+          return radius;
+        }
+      }))
       .on('tick', tickActions)
       // this line jostles the nodes slightly
       .alpha(1)
       .restart();
+
+    // turn off dragging functionality (thank me later)
+    d3.select(container).on('mousedown.drag', null);
   }
 
   // actualHTML is innerHTML
@@ -218,15 +256,29 @@ process = function(data, jqXHR) {
     addPageForm = addPageForm.replace('<br></textarea>', '</textarea>');
     var form = "<form action='" + formAction + "' method='post' autocomplete='off'>"
       + addPageForm
-      + "<input type='submit' name='add_page_form' value='Add'> </form>";
+      + "<input type='submit' name='add_page_form' value='Add'>"
+      + "<input type='hidden' name='id' value='" + d.id + "'>"
+      + "</form>";
     expand(d, this, form);
   }
 
+  // actualHTML is delPageForm
   function del(d) {
     var form = "<form action='" + formAction + "' method='post' autocomplete='off'>"
       + delPageForm
-      + "<input type='submit' name='del_page_form' value='Delete'> </form>";
+      + "<input id='del-submit' type='submit' name='del_page_form' value='Delete' disabled='disabled'>"
+      + "<input type='hidden' name='id' value='" + d.id + "'>"
+      + "</form>";
     expand(d, this, '<h1 style="text-align: center"> Are you sure you want to delete this page? Type its title below to confirm: </h1>' + form);
+    d3.select('#id_title').on('keyup', function() {
+      if (this.value == d.name) {
+        d3.select('#del-submit')
+          .attr('disabled', null);
+      } else {
+        d3.select('#del-submit')
+          .attr('disabled', 'disabled');
+      }
+    });
   }
 
   // function to update the locations of the nodes and links after every tick
@@ -246,32 +298,4 @@ process = function(data, jqXHR) {
 
   // add above function to simulation
   simulation.on('tick', tickActions);
-
-  // click + drag functionality
-  function drag_start(d) {
-    if (!d3.event.active) simulation.alphaTarget(0.3).restart();
-    d.fx = d.x;
-    d.fy = d.y;
-  }
-
-  function drag_drag(d) {
-    d.fx = d3.event.x;
-    d.fy = d3.event.y;
-  }
-
-  function drag_end(d) {
-    if (!d3.event.active) simulation.alphaTarget(0);
-    d.fx = null;
-    d.fy = null;
-  }
-
-  var drag_handler = d3.drag()
-    .on('start', drag_start)
-    .on('drag', drag_drag)
-    .on('end', drag_end);
-
-  drag_handler(node);
-}
-
-// AJAX call to get data from server (and processes data with method above)
-$.getJSON('network_json', {}, process);
+});

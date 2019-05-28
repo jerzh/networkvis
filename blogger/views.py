@@ -1,35 +1,36 @@
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.urls import reverse
 from django.shortcuts import render, get_object_or_404
-from .models import Setting, Page
+from .models import Setting, Page, Link
 from .forms import SettingForm, AddPageForm, DelPageForm
 
 import requests, json, markdown
 
-# Create your views here.
+def login(request):
+    HttpResponseRedirect(reverse('blogger:index'))
+
 def index(request):
     if request.method == 'POST':
         if 'setting_form' in request.POST:
-            form = SettingForm(request.POST)
+            form = SettingForm(request.POST, instance=Setting.objects.all()[0])
             if form.is_valid():
-                s = Setting.objects.all()[0]
-                s.setting = form.cleaned_data['setting']
-                s.save()
-                return HttpResponseRedirect(reverse('blogger:index'))
+                form.save()
         elif 'add_page_form' in request.POST:
+            id = request.POST['id']
             form = AddPageForm(request.POST)
             if form.is_valid():
-                p = Page(title=form.cleaned_data['title'],
-                    description=form.cleaned_data['description'],
-                    color=form.cleaned_data['color'],
-                    content=form.cleaned_data['content'])
+                p = form.save()
                 p.save()
-                return HttpResponseRedirect(reverse('blogger:index'))
+                Link(source=id, target=p.id, color='green').save()
         elif 'del_page_form' in request.POST:
+            id = request.POST['id']
             form = DelPageForm(request.POST)
             if form.is_valid():
-                print(request.POST)
-                return HttpResponseRedirect(reverse('blogger:index'))
+                Page.objects.get(id=id).delete()
+                l_set = Link.objects.filter(source=id) | Link.objects.filter(target=id)
+                for link in l_set:
+                    link.delete()
+        return HttpResponseRedirect(reverse('blogger:index'))
     else:
         setting_form = SettingForm()
         add_page_form = AddPageForm()
@@ -39,6 +40,7 @@ def index(request):
                 'add_page_form': add_page_form,
                 'del_page_form': del_page_form,
             })
+
 
 def network_json(request):
     if not Setting.objects.all():
@@ -67,6 +69,7 @@ def network_json(request):
 
         for page in Page.objects.all():
             node_data = {
+                'id': page.id,
                 'name': page.title,
                 'color': page.color,
                 'innerHTML': '<p>' + page.description + '</p>',
@@ -75,16 +78,37 @@ def network_json(request):
             if page.title == 'index':
                 node_data['deletable'] = 'false'
             else:
-                node_data['innerHTML'] += '<a href=' + reverse('blogger:page', args=(page.title,)) + '> Visit page </a>'
+                node_data['innerHTML'] += '<a href=' + reverse('blogger:page', args=(page.id,)) + '> Visit page </a>'
 
             data['nodes_data'].append(node_data)
 
+        for link in Link.objects.all():
+            link_data = {
+                'source': link.source,
+                'target': link.target,
+                'color': link.color,
+            }
+
+            data['links_data'].append(link_data)
+
         return JsonResponse(data)
 
-def page(request, title):
-    p = get_object_or_404(Page, title=title)
-    return render(request, 'blogger/page.html', {
-            'title': title,
-            'description': p.description,
-            'content': markdown.markdown(p.content, safe_mode=True),
-        })
+
+def page(request, id):
+    if request.method == 'POST':
+        p = get_object_or_404(Page, id=id)
+        p.title = request.POST['title']
+        p.description = request.POST['description']
+        p.content = request.POST['content']
+        p.color = request.POST['color']
+        p.save()
+        return HttpResponseRedirect(reverse('blogger:page', args=(id,)))
+    else:
+        p = get_object_or_404(Page, id=id)
+        return render(request, 'blogger/page.html', {
+                'id': id,
+                'title': p.title,
+                'description': p.description,
+                'content': markdown.markdown(p.content, safe_mode=True),
+                'color': p.color,
+            })

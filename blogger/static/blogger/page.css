@@ -1,4 +1,4 @@
-div {
+.section {
   border-radius: 10px;
   padding: 1px;
   margin: 20px;
@@ -7,23 +7,43 @@ div {
   transition: 0.25s ease-in-out;
 }
 
-div:hover {
+.section:hover {
   opacity: 1;
 }
 
-.title {
+#title {
   background-color: red;
   text-align: center;
 }
 
-.description {
-  background-color: lightgreen;
+.padded {
   padding-left: 10px;
   padding-right: 10px;
 }
 
-.content {
+#description {
+  background-color: lightgreen;
+}
+
+#content {
   background-color: cyan;
+}
+
+form {
+  display: inline;
+  margin: 0;
+}
+
+#buttons {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.button {
+  display: inline-block;
+  background-color: white;
+  margin-top: 0px;
   padding-left: 10px;
   padding-right: 10px;
 }

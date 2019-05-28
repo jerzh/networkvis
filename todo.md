@@ -7,7 +7,7 @@ Probably going to use one of these libraries:
 Goals (in order of importance):
 - Display a graph &#x2713;
 - Embed content in graph nodes &#x2713;
-- Implement blogging functionality
+- Implement blogging functionality &#x2713;
 - Nice floaty feel &#x2713;
 - Different ways to construct the graph (e.g. by tags, by pub date)
 - Data analytics

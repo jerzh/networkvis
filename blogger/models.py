@@ -15,5 +15,7 @@ class Page(models.Model):
     color = models.CharField(max_length=20)
     content = models.TextField()
 
-# class Link(models.Model):
-#     pass
+class Link(models.Model):
+    source = models.PositiveIntegerField()
+    target = models.PositiveIntegerField()
+    color = models.CharField(max_length=20)
