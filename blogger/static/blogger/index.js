@@ -151,9 +151,17 @@ d3.json('network_json', {}).then(function(data) {
     // color text black or white according to how dark the circle is (found online)
     n.selectAll('text')
       .style('fill', function(d) {
-        c = getComputedStyle(d3.select(this.parentNode).select('circle').node()).fill.match(/^rgb\s*\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)$/i);
+        var c = getComputedStyle(d3.select(this.parentNode).select('circle').node()).fill.match(/^rgb\s*\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)$/i);
         return (c[1] * 0.299 + c[2] * 0.587 + c[3] * 0.114) > 186 ? 'black' : 'white';
+      });
+
+    // black border if circle is white
+    n.select('circle')
+      .filter(function(d) {
+        var c = getComputedStyle(d3.select(this.parentNode).select('circle').node()).fill.match(/^rgb\s*\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)$/i);
+        return c[1] == 0 && c[2] == 0 && c[3] == 0;
       })
+      .style('stroke', 'white');
 
     // turn on dragging functionality
     drag_handler(n);

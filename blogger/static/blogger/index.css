@@ -1,15 +1,29 @@
-/* .links line {
-  stroke: #999;
-  stroke-opacity: 0.6;
-} */
+body {
+  font-family: "Garamond";
+  background-color: black;
+  color: white;
+}
 
-.nodes circle {
-  stroke: #fff;
+a {
+  color: cyan;
+}
+
+.nodes g circle {
+  stroke: black;
   stroke-width: 1.5px;
 }
 
+.nodes g {
+  opacity: 0.8;
+  transition: opacity 0.25s ease-in-out;
+}
+
+.nodes g:hover {
+  opacity: 1;
+}
+
 .content {
-  background-color: white;
+  background-color: black;
   border-radius: 100%;
   width: 100%;
   height: 100%;
@@ -39,4 +53,9 @@
 
 form * {
   margin-right: 5px;
+}
+
+input, textarea {
+  background-color: black;
+  color: white;
 }

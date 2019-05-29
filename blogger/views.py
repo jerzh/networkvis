@@ -6,8 +6,10 @@ from .forms import SettingForm, AddPageForm, DelPageForm
 
 import requests, json, markdown
 
+
 def login(request):
-    HttpResponseRedirect(reverse('blogger:index'))
+    return HttpResponseRedirect(reverse('blogger:index'))
+
 
 def index(request):
     if request.method == 'POST':
@@ -72,7 +74,7 @@ def network_json(request):
                 'id': page.id,
                 'name': page.title,
                 'color': page.color,
-                'innerHTML': '<p>' + page.description + '</p>',
+                'innerHTML': markdown.markdown(page.description, safe_mode=True),
             }
 
             if page.title == 'index':
@@ -97,10 +99,12 @@ def network_json(request):
 def page(request, id):
     if request.method == 'POST':
         p = get_object_or_404(Page, id=id)
+        # there has to be a more efficient way of doing this but idk
         p.title = request.POST['title']
         p.description = request.POST['description']
         p.content = request.POST['content']
         p.color = request.POST['color']
+        p.desc_color = request.POST['desc-color']
         p.save()
         return HttpResponseRedirect(reverse('blogger:page', args=(id,)))
     else:
@@ -108,7 +112,8 @@ def page(request, id):
         return render(request, 'blogger/page.html', {
                 'id': id,
                 'title': p.title,
-                'description': p.description,
+                'description': markdown.markdown(p.description, safe_mode=True),
                 'content': markdown.markdown(p.content, safe_mode=True),
                 'color': p.color,
+                'desc_color': p.desc_color,
             })

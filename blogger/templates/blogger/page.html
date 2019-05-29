@@ -1,18 +1,21 @@
 {% load static %}
 
 <head>
-  <script src='https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js'></script>
+  <!-- for converting markdown to HTML and back -->
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/markdown-it/8.4.2/markdown-it.min.js'></script>
+  <script src='https://unpkg.com/turndown/dist/turndown.js'></script>
+  <!-- <script src='https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js'></script> -->
   <link rel='stylesheet' type='text/css' href='{% static "blogger/page.css" %}' />
   <link rel='icon' type='image/png' href='https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Banana-Single.jpg/1200px-Banana-Single.jpg'>
   <title> {{ title }} </title>
 </head>
 
-<body style='background-color: {{ color }}'>
-  <div id='title' class='section' contenteditable='true'>
+<body>
+  <div id='title' class='section' contenteditable='true' style='background-color: {{ color }}'>
     <h1> {{ title }} </h1>
   </div>
-  <div id='description' class='section padded' contenteditable='true'>
-    <p> {{ description }} </p>
+  <div id='description' class='section padded' contenteditable='true' style='background-color: {{ desc_color }}'>
+    {{ description|safe }}
   </div>
   <div id='content' class='section padded' contenteditable='true'>
     {{ content|safe }}
@@ -21,12 +24,16 @@
     <div id='color' class='section button' contenteditable='true'>
       {{ color }}
     </div>
+    <div id='desc-color' class='section button' contenteditable='true'>
+      {{ desc_color }}
+    </div>
     <form id='save-form' action='{% url "blogger:page" id %}' method='post'>
       {% csrf_token %}
       <input id='input-title' type='hidden' name='title'>
       <input id='input-desc' type='hidden' name='description'>
       <input id='input-content' type='hidden' name='content'>
       <input id='input-color' type='hidden' name='color'>
+      <input id='input-desc-color' type='hidden' name='desc-color'>
       <div id='save' class='section button'>
         Save changes
       </div>
@@ -40,22 +47,5 @@
       </div>
     </a>
   </div>
-  <script>
-    // this script is nasty, no wonder people use jQuery
-    document.getElementById('save').onclick = function() {
-      document.getElementById('input-title')
-        .setAttribute('value', document.getElementById('title').innerText);
-      document.getElementById('input-desc')
-        .setAttribute('value', document.getElementById('description').innerText);
-      document.getElementById('input-content')
-        .setAttribute('value', document.getElementById('content').innerText);
-      document.getElementById('input-color')
-        .setAttribute('value', document.getElementById('color').innerText);
-      document.getElementById('save-form').submit();
-    };
-
-    document.getElementById('revert').onclick = function() {
-      window.location.reload();
-    };
-  </script>
+  <script src='{% static "blogger/page.js" %}'></script>
 </body>

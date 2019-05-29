@@ -13,6 +13,7 @@ class Page(models.Model):
     title = models.CharField(max_length=30)
     description = models.CharField(max_length=300)
     color = models.CharField(max_length=20)
+    desc_color = models.CharField(max_length=20, default='#444444')
     content = models.TextField()
 
 class Link(models.Model):
