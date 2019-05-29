@@ -1,1 +1,1 @@
-web: gunicorn blogger.wsgi --log-file -
+web: gunicorn networkvis.wsgi --log-file -
