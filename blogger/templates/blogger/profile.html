@@ -1,0 +1,46 @@
+{% load static %}
+
+<head>
+  <link rel='stylesheet' type='text/css' href='{% static "blogger/blocks.css" %}' />
+  <link rel='icon' type='image/png' href='https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Banana-Single.jpg/1200px-Banana-Single.jpg'>
+  <title> profile </title>
+</head>
+
+<body class='flex'>
+  {% if messages %}
+  <ul class="messages">
+      {% for message in messages %}
+      <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+      {% endfor %}
+  </ul>
+  {% endif %}
+
+  <div class='main section padded'>
+    <h1> {{ name }} </h1>
+    <p> Username: {{ username }} </p>
+  </div>
+  <div class='main section padded' style='display: flex; flex-direction: row; justify-content: space-around; align-items: center;'>
+    <form action='{% url "blogger:profile" %}' method='post' autocomplete='off'>
+      {% csrf_token %}
+      {{ name_form|linebreaks }}
+      <input type='submit' name='name_form' value='Change'>
+    </form>
+    <form action='{% url "blogger:profile" %}' method='post' autocomplete='off'>
+      {% csrf_token %}
+      {{ password_form|linebreaks }}
+      <input type='submit' name='password_form' value='Change'>
+    </form>
+  </div>
+  <div class='buttons'>
+    <a href='{% url "blogger:index" %}'>
+      <div class='section button'>
+        Back to index
+      </div>
+    </a>
+    <a href='{% url "blogger:delete" %}'>
+      <div class='section button'>
+        Delete account
+      </div>
+    </a>
+  </div>
+</body>

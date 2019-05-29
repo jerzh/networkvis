@@ -20,3 +20,8 @@ class Link(models.Model):
     source = models.PositiveIntegerField()
     target = models.PositiveIntegerField()
     color = models.CharField(max_length=20)
+
+class User(models.Model):
+    username = models.CharField(max_length=50)
+    password = models.CharField(max_length=100)
+    name = models.CharField('display name', max_length=100)

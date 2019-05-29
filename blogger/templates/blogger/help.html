@@ -1,0 +1,89 @@
+{% load static %}
+
+<head>
+  <link rel='stylesheet' type='text/css' href='{% static "blogger/blocks.css" %}' />
+  <link rel='icon' type='image/png' href='https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Banana-Single.jpg/1200px-Banana-Single.jpg'>
+  <title> help </title>
+</head>
+
+<body class='flex'>
+  {% if messages %}
+  <ul class="messages">
+      {% for message in messages %}
+      <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+      {% endfor %}
+  </ul>
+  {% endif %}
+
+  <div class='main section padded'>
+    <p> <strong> NetVis Blogger </strong> is a combined blogger, mind mapper,
+    and network visualizer.
+    Its format is like a regular blogger - one can write as well as style posts
+    - but users are able to see visually how the pages are connected, giving the
+    pasttime of blogging an entirely new feel.
+    In addition, users are encouraged to collaborate on blog posts, allowing
+    them to build off of each other's ideas in a very visual way. </p>
+  </div>
+  <div class='main section padded'>
+    <p> The main view of a blog looks like this: </p>
+    <img src='{% static "blogger/network-vis.png "%}' />
+    <p> Each node represents a single post, which contains a title, a
+    description, and content.
+    The titles are displayed on the nodes, as shown.
+    To see the node's description, click on the title text, and the node will
+    expand, showing the description in the middle. </p>
+  </div>
+  <div class='main section padded'>
+    <p> The title is not a node's only clickable item: there are also "+" and "-"
+    buttons hidden on the bottom and top, respectively.
+    If you mouse over them, they will appear.
+    Their functions are to create a new node and delete the node, respectively.
+    Upon being clicked, the node will expand to show the corresponding form for
+    adding or deleting a node. </p>
+  </div>
+  <div class='main section padded'>
+    <p> When expanding a node via its title, you will notice a link saying
+    "Visit page."
+    As would make sense, the link goes to the post page, displaying the title,
+    the description, and the content, like this:</p>
+    <img src='{% static "blogger/network-vis-2.png "%}' />
+    <p> This is where the content is editable.
+    The description and the content sections support John Gruber's
+    <a href='https://en.wikipedia.org/wiki/Markdown'> Markdown</a>.
+    The bottom row of buttons is also important: the first two set the
+    background colors of the title and the description, respectively, and the
+    last three do what they say.
+    The "Save changes" button is highlighted because it is very important: be
+    sure to save your changes before leaving the page! </p>
+  </div>
+  <div class='main section padded'>
+    <p> Of course, nodes are nothing without links connecting them together.
+    Whenever a new node is created from another node, a green link is connected
+    between the two nodes.
+    Also, you can create custom links via the "New link" button on a blog's main
+    view, which will be added to the two posts' pages. </p>
+  </div>
+  <div class='main section padded'>
+    <p> User management: to be added </p>
+  </div>
+  <div class='buttons'>
+    <a href='{% url "blogger:login" %}'>
+      <div class='section button'>
+        Back to login
+      </div>
+    </a>
+    {% if helped %}
+    <a href='{% url "blogger:index" %}'>
+      <div class='section button'>
+        Onward!
+      </div>
+    </a>
+    {% else %}
+    <a href='{% url "blogger:create" %}'>
+      <div class='section button'>
+        Get started
+      </div>
+    </a>
+    {% endif %}
+  </div>
+</body>

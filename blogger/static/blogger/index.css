@@ -1,11 +1,7 @@
-body {
-  font-family: "Garamond";
-  background-color: black;
-  color: white;
-}
+@import url('general.css');
 
-a {
-  color: cyan;
+body {
+  color: white;
 }
 
 .nodes g circle {
@@ -51,11 +47,15 @@ a {
   opacity: 1;
 }
 
+.button {
+  margin: 10px;
+}
+
 form * {
   margin-right: 5px;
 }
 
-input, textarea {
+input[type='text'], textarea {
   background-color: black;
   color: white;
 }

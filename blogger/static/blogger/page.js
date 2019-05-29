@@ -3,6 +3,15 @@
 var md = window.markdownit();
 var td = new TurndownService();
 
+// add support for strikethrough (apparently Python Markdown doesn't support
+// strikethrough so it won't work in the 'description' section but it's ok)
+td.addRule('strikethrough', {
+  filter: ['del', 's', 'strike'],
+  replacement: function (content) {
+    return '~~' + content + '~~';
+  }
+});
+
 // choose black or white text color
 var title = document.getElementById('title');
 var c = getComputedStyle(title)['background-color'].match(/^rgb\s*\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)$/i);

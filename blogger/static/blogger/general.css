@@ -1,0 +1,64 @@
+body {
+  font-family: "Garamond";
+  background-color: black;
+  color: white;
+}
+
+a {
+  color: cyan;
+}
+
+.flex {
+  height: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.section {
+  border-radius: 10px;
+  padding: 1px;
+  margin: 20px;
+  box-shadow: 5px 5px 10px gray;
+  opacity: 0.8;
+  transition: opacity 0.25s ease-in-out;
+}
+
+.section:hover {
+  opacity: 1;
+}
+
+.padded {
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+.buttons {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.button, input[type='submit'] {
+  display: inline-block;
+  background-color: white;
+  color: black;
+  border-radius: 10px;
+  padding-left: 10px;
+  padding-right: 10px;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.nodecor {
+  text-decoration: none;
+}
+
+form label {
+  margin-right: 5px;
+}
+
+form label + input {
+  margin-bottom: 5px;
+}

@@ -3,19 +3,47 @@
 <head>
   <script src='https://d3js.org/d3.v5.min.js'></script>
   <script src="https://d3js.org/d3-fetch.v1.min.js"></script>
-  <!-- <script src='https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js'></script> -->
   <link rel='stylesheet' type='text/css' href='{% static "blogger/index.css" %}' />
   <link rel='icon' type='image/png' href='https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Banana-Single.jpg/1200px-Banana-Single.jpg'>
   <title> index </title>
 </head>
 
 <body>
-  <!-- <div id='nothing'></div> -->
+  {% if messages %}
+  <ul class="messages">
+      {% for message in messages %}
+      <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+      {% endfor %}
+  </ul>
+  {% endif %}
+
   <form action='{% url "blogger:index" %}' method='post'>
     {% csrf_token %}
     {{ setting_form }}
     <input type='submit' name='setting_form' value='Change'>
   </form>
+  <a class='nodecor' href='{% url "blogger:help" %}'>
+    <div class='section button'>
+      Help
+    </div>
+  </a>
+  <a class='nodecor' href='{% url "blogger:profile" %}'>
+    <div class='section button'>
+      User profile
+    </div>
+  </a>
+  <br>
+  <a class='nodecor' href='{% url "blogger:link" %}'>
+    <div class='section button'>
+      Add link
+    </div>
+  </a>
+  <a class='nodecor' href='{% url "blogger:logout" %}'>
+    <div class='section button'>
+      Logout
+    </div>
+  </a>
+
   <div id='graph'>
   </div>
   <script type='text/javascript'>

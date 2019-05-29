@@ -11,16 +11,16 @@
 </head>
 
 <body>
-  <div id='title' class='section' contenteditable='true' style='background-color: {{ color }}'>
+  <div id='title' class='section' contenteditable='true' style='background-color: {{ color }};'>
     <h1> {{ title }} </h1>
   </div>
-  <div id='description' class='section padded' contenteditable='true' style='background-color: {{ desc_color }}'>
+  <div id='description' class='section padded' contenteditable='true' style='background-color: {{ desc_color }};'>
     {{ description|safe }}
   </div>
   <div id='content' class='section padded' contenteditable='true'>
     {{ content|safe }}
   </div>
-  <div id='buttons'>
+  <div class='buttons'>
     <div id='color' class='section button' contenteditable='true'>
       {{ color }}
     </div>

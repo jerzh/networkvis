@@ -1,29 +1,8 @@
-body {
-  font-family: "Garamond";
-  background-color: black;
-}
-
-.section {
-  border-radius: 10px;
-  padding: 1px;
-  margin: 20px;
-  box-shadow: 5px 5px 10px gray;
-  opacity: 0.8;
-  transition: opacity 0.25s ease-in-out;
-}
-
-.section:hover {
-  opacity: 1;
-}
+@import url('general.css');
 
 #title {
   /* background-color: red; */
   text-align: center;
-}
-
-.padded {
-  padding-left: 10px;
-  padding-right: 10px;
 }
 
 #content {
@@ -34,22 +13,11 @@ body {
   cursor: text;
 }
 
+#save {
+  background-color: yellow;
+}
+
 form {
   display: inline;
   margin: 0;
-}
-
-#buttons {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.button {
-  display: inline-block;
-  background-color: white;
-  margin-top: 0px;
-  padding-left: 10px;
-  padding-right: 10px;
-  cursor: pointer;
 }

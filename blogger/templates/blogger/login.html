@@ -1,0 +1,38 @@
+{% load static %}
+
+<head>
+  <link rel='stylesheet' type='text/css' href='{% static "blogger/blocks.css" %}' />
+  <link rel='icon' type='image/png' href='https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Banana-Single.jpg/1200px-Banana-Single.jpg'>
+  <title> login </title>
+</head>
+
+<body class='flex'>
+  {% if messages %}
+  <ul class="messages">
+      {% for message in messages %}
+      <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+      {% endfor %}
+  </ul>
+  {% endif %}
+
+  <div class='main section padded'>
+    <h1> Welcome to NetVis Blogger! Login below or create a new account. </h1>
+    <form action='{% url "blogger:login" %}' method='post' autocomplete='off'>
+      {% csrf_token %}
+      {{ login_form|linebreaks }}
+      <input type='submit' name='login_form' value='Login'>
+    </form>
+  </div>
+  <div class='buttons'>
+    <a href='{% url "blogger:create" %}'>
+      <div class='section button'>
+        Create a new account
+      </div>
+    </a>
+    <a href='{% url "blogger:help" %}'>
+      <div class='section button'>
+        Where am I?
+      </div>
+    </a>
+  </div>
+</body>

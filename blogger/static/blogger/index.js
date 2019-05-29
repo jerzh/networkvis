@@ -278,7 +278,7 @@ d3.json('network_json', {}).then(function(data) {
       + "<input type='hidden' name='id' value='" + d.id + "'>"
       + "</form>";
     expand(d, this, '<h1 style="text-align: center"> Are you sure you want to delete this page? Type its title below to confirm: </h1>' + form);
-    d3.select('#id_title').on('keyup', function() {
+    d3.select('#id_field').on('keyup', function() {
       if (this.value == d.name) {
         d3.select('#del-submit')
           .attr('disabled', null);

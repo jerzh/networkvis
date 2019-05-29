@@ -1,0 +1,33 @@
+{% load static %}
+
+<head>
+  <link rel='stylesheet' type='text/css' href='{% static "blogger/blocks.css" %}' />
+  <link rel='icon' type='image/png' href='https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Banana-Single.jpg/1200px-Banana-Single.jpg'>
+  <title> create </title>
+</head>
+
+<body class='flex'>
+  {% if messages %}
+  <ul class="messages">
+      {% for message in messages %}
+      <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+      {% endfor %}
+  </ul>
+  {% endif %}
+
+  <div class='main section padded'>
+    <h1> Create your account: </h1>
+    <form action='{% url "blogger:create" %}' method='post' autocomplete='off'>
+      {% csrf_token %}
+      {{ create_form|linebreaks }}
+      <input type='submit' name='create_form' value='Create'>
+    </form>
+  </div>
+  <div class='buttons'>
+    <a href='{% url "blogger:login" %}'>
+      <div class='section button'>
+        Back
+      </div>
+    </a>
+  </div>
+</body>
