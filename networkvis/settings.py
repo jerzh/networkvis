@@ -117,6 +117,10 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
 ]
 
+# make directories if they don't exist (I think)
+os.makedirs(STATIC_TMP, exist_ok=True)
+os.makedirs(STATIC_ROOT, exist_ok=True)
+
 # Configure Django App for Heroku.
 import django_heroku
 django_heroku.settings(locals())
