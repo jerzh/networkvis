@@ -3,5 +3,4 @@ django-heroku
 gunicorn
 psycopg2-binary
 requests
-json
 markdown
