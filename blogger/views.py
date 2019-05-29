@@ -316,7 +316,7 @@ def page(request, id):
         p.color = request.POST['color']
         p.desc_color = request.POST['desc-color']
         # add new author if it was added
-        if request.POST['author'] != '+':
+        if request.POST['author'] != '' and request.POST['author'] != '+':
             if not User.objects.filter(username=request.POST['author']):
                 messages.error(request, 'User not found')
             else:
