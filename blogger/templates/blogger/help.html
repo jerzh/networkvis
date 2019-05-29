@@ -7,6 +7,7 @@
 </head>
 
 <body class='flex'>
+  <!-- display messages -->
   {% if messages %}
   <ul class="messages">
       {% for message in messages %}
@@ -15,7 +16,9 @@
   </ul>
   {% endif %}
 
+  <!-- a helpful tutorial -->
   <div class='main section padded'>
+    <h1> About </h1>
     <p> <strong> NetVis Blogger </strong> is a combined blogger, mind mapper,
     and network visualizer.
     Its format is like a regular blogger - one can write as well as style posts
@@ -27,7 +30,9 @@
   <div class='main section padded'>
     <p> The main view of a blog looks like this: </p>
     <img src='{% static "blogger/network-vis.png "%}' />
-    <p> Each node represents a single post, which contains a title, a
+    <p> (As of now, there is only one blog 'main', though the intention is to
+    eventually allow for both personal and group-run blogs.)
+    Each node represents a single post, which contains a title, a
     description, and content.
     The titles are displayed on the nodes, as shown.
     To see the node's description, click on the title text, and the node will
@@ -45,9 +50,18 @@
     <p> When expanding a node via its title, you will notice a link saying
     "Visit page."
     As would make sense, the link goes to the post page, displaying the title,
-    the description, and the content, like this:</p>
+    the authors, the description, and the content, like this:</p>
     <img src='{% static "blogger/network-vis-2.png "%}' />
-    <p> This is where the content is editable.
+    <p style='margin-bottom: 0;'> If none of the authors is 'admin-frozen' and one of the following are true: </p>
+    <div style='display: inline-block;'>
+      <ul>
+        <li> you are one of the authors
+        <li> one of the authors is 'admin'
+      </ul>
+    </div>
+    <p style='margin-top: 0;'> you will be able to edit the page's content.
+    If the first is true, then you will also be able to give any user edit
+    permission by clicking the '+' button.
     The description and the content sections support John Gruber's
     <a href='https://en.wikipedia.org/wiki/Markdown'> Markdown</a>.
     The bottom row of buttons is also important: the first two set the
@@ -60,30 +74,44 @@
     <p> Of course, nodes are nothing without links connecting them together.
     Whenever a new node is created from another node, a green link is connected
     between the two nodes.
-    Also, you can create custom links via the "New link" button on a blog's main
+    Also, you can create custom links via the "Add link" button on a blog's main
     view, which will be added to the two posts' pages. </p>
   </div>
   <div class='main section padded'>
-    <p> User management: to be added </p>
+    <p> Finally, there are basic user management functions, such as changing the
+    display name, changing the password, and deleting the account. More user
+    customization is coming soon! </p>
   </div>
+  <!-- determine which buttons to show based on 'helped' (a variable depending
+  on where the user has been) -->
   <div class='buttons'>
+    {% if helped == 'index' %}
+    <a href='{% url "blogger:index" %}'>
+      <div class='section button'>
+        Back to index
+      </div>
+    </a>
+    {% else %}
     <a href='{% url "blogger:login" %}'>
       <div class='section button'>
         Back to login
       </div>
     </a>
-    {% if helped %}
-    <a href='{% url "blogger:index" %}'>
-      <div class='section button'>
-        Onward!
-      </div>
-    </a>
-    {% else %}
-    <a href='{% url "blogger:create" %}'>
-      <div class='section button'>
-        Get started
-      </div>
-    </a>
+      {% if helped == 'helped' %}
+      <!-- go to 'index' page -->
+      <a href='{% url "blogger:index" %}'>
+        <div class='section button'>
+          Onward!
+        </div>
+      </a>
+      {% elif helped == 'login' %}
+      <!-- go to 'create' page -->
+      <a href='{% url "blogger:create" %}'>
+        <div class='section button'>
+          Get started
+        </div>
+      </a>
+      {% endif %}
     {% endif %}
   </div>
 </body>

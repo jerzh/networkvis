@@ -13,7 +13,7 @@ td.addRule('strikethrough', {
 });
 
 // choose black or white text color
-var title = document.getElementById('title');
+var title = document.getElementById('title-container');
 var c = getComputedStyle(title)['background-color'].match(/^rgb\s*\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)$/i);
 title.style['color'] = (c[1] * 0.299 + c[2] * 0.587 + c[3] * 0.114) > 186 ? 'black' : 'white';
 
@@ -43,22 +43,45 @@ description.addEventListener('focusout', mdf);
 content.addEventListener('focusin', tdf);
 content.addEventListener('focusout', mdf);
 
-// save changes
-document.getElementById('save').onclick = function() {
-  document.getElementById('input-title')
-    .setAttribute('value', document.getElementById('title').innerText);
-  document.getElementById('input-desc')
-    .setAttribute('value', td.turndown(document.getElementById('description').innerHTML));
-  document.getElementById('input-content')
-    .setAttribute('value', td.turndown(document.getElementById('content').innerHTML));
-  document.getElementById('input-color')
-    .setAttribute('value', document.getElementById('color').innerText);
-  document.getElementById('input-desc-color')
-    .setAttribute('value', document.getElementById('desc-color').innerText);
-  document.getElementById('save-form').submit();
-};
+if (editable) {
+  // save changes
+  document.getElementById('save').onclick = function() {
+    document.getElementById('input-title')
+      .setAttribute('value', document.getElementById('title').innerText);
+    document.getElementById('input-desc')
+      .setAttribute('value', td.turndown(document.getElementById('description').innerHTML));
+    document.getElementById('input-content')
+      .setAttribute('value', td.turndown(document.getElementById('content').innerHTML));
+    document.getElementById('input-color')
+      .setAttribute('value', document.getElementById('color').innerText);
+    document.getElementById('input-desc-color')
+      .setAttribute('value', document.getElementById('desc-color').innerText);
 
-// revert changes (just reloads the page)
-document.getElementById('revert').onclick = function() {
-  window.location.reload();
-};
+    if (addable) {
+      document.getElementById('input-author')
+        .setAttribute('value', document.getElementById('add').innerText);
+    }
+
+    document.getElementById('save-form').submit();
+  };
+
+  // revert changes (just reloads the page)
+  document.getElementById('revert').onclick = function() {
+    window.location.reload();
+  };
+
+  // clear text when + button is clicked (decided against it because it causes
+  // a bug if the user clicks 'save changes' without clicking out)
+  // var add = document.getElementById('add');
+  // add.addEventListener('focusin', function () {
+  //   add.innerText = '';
+  // });
+} else {
+  // when not editable, make it obvious that buttons aren't clickable by changing
+  // the cursor to default
+  document.getElementById('title').style['cursor'] = 'default';
+  document.getElementById('color').style['cursor'] = 'default';
+  document.getElementById('desc-color').style['cursor'] = 'default';
+  document.getElementById('save').style['cursor'] = 'default';
+  document.getElementById('revert').style['cursor'] = 'default';
+}

@@ -11,7 +11,7 @@ Goals (in order of importance):
 - Nice floaty feel &#x2713;
 - Different ways to construct the graph (e.g. by tags, by pub date)
 - Data analytics
-- Login
+- Login &#x2713;
 - Collaborative blogs
 - Figure out how to delete nodes (mods? democracy?)
 - Live updates for new nodes

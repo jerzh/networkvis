@@ -11,22 +11,55 @@
 </head>
 
 <body>
-  <div id='title' class='section' contenteditable='true' style='background-color: {{ color }};'>
-    <h1> {{ title }} </h1>
+  <!-- display messages -->
+  {% if messages %}
+  <ul class="messages">
+      {% for message in messages %}
+      <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+      {% endfor %}
+  </ul>
+  {% endif %}
+
+  <!-- title + authors (editable with permission, customizable color)-->
+  <div id='title-container' class='section' contenteditable='{{ editable }}' style='background-color: {{ color }};'>
+    <!-- title -->
+    <div id='title' style='display: inline-block;'>
+      <h1> {{ title }} </h1>
+    </div>
+    <!-- authors (plus options defining whether they are editable etc.) -->
+    <div class='buttons' contenteditable='false' style='display: inline-block;'>
+      {% if admin %}
+      <div class='section button low-margin' style='cursor: default;'>
+        admin
+      </div>
+      {% endif %}
+      {% for author in authors %}
+      <a class='nodecor' href='{% url "blogger:user" author.id %}'>
+        <div class='section button low-margin'>
+          {{ author.name }}
+        </div>
+      </a>
+      {% endfor %}
+      {% if addable %}
+      <div id='add' class='section button low-margin' contenteditable='true'>+</div>
+      {% endif %}
+    </div>
   </div>
-  <div id='description' class='section padded' contenteditable='true' style='background-color: {{ desc_color }};'>
+  <!-- description (editable with permission, customizable color) -->
+  <div id='description' class='section padded' contenteditable='{{ editable|lower }}' style='background-color: {{ desc_color }};'>
     {{ description|safe }}
   </div>
-  <div id='content' class='section padded' contenteditable='true'>
+  <!-- content (editable with permission) -->
+  <div id='content' class='section padded' contenteditable='{{ editable|lower }}'>
     {{ content|safe }}
   </div>
   <div class='buttons'>
-    <div id='color' class='section button' contenteditable='true'>
-      {{ color }}
-    </div>
-    <div id='desc-color' class='section button' contenteditable='true'>
-      {{ desc_color }}
-    </div>
+    <!-- set title + authors color -->
+    <div id='color' class='section button' contenteditable='{{ editable|lower }}'>{{ color }}</div>
+    <!-- set description color -->
+    <div id='desc-color' class='section button' contenteditable='{{ editable|lower }}'>{{ desc_color }}</div>
+    <!-- 'save changes' button, submits form with values of hidden inputs as
+    defined by the Javascript -->
     <form id='save-form' action='{% url "blogger:page" id %}' method='post'>
       {% csrf_token %}
       <input id='input-title' type='hidden' name='title'>
@@ -34,10 +67,12 @@
       <input id='input-content' type='hidden' name='content'>
       <input id='input-color' type='hidden' name='color'>
       <input id='input-desc-color' type='hidden' name='desc-color'>
+      <input id='input-author' type='hidden' name='author'>
       <div id='save' class='section button'>
         Save changes
       </div>
     </form>
+    <!-- 'revert changes' button, reloads the page with Javascript  -->
     <div id='revert' class='section button'>
       Revert changes
     </div>
@@ -47,5 +82,10 @@
       </div>
     </a>
   </div>
+  <script>
+    // transfer Django template variables to Javascript variables
+    var editable = {{ editable|lower }};
+    var addable = {{ addable|lower }};
+  </script>
   <script src='{% static "blogger/page.js" %}'></script>
 </body>

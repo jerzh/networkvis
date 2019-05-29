@@ -3,7 +3,7 @@
 <head>
   <link rel='stylesheet' type='text/css' href='{% static "blogger/blocks.css" %}' />
   <link rel='icon' type='image/png' href='https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Banana-Single.jpg/1200px-Banana-Single.jpg'>
-  <title> create </title>
+  <title> add link </title>
 </head>
 
 <body class='flex'>
@@ -18,18 +18,18 @@
 
   <!-- create user form -->
   <div class='main section padded'>
-    <h1> Create your account: </h1>
-    <form action='{% url "blogger:create" %}' method='post' autocomplete='off'>
+    <h1> Add new link: </h1>
+    <form action='{% url "blogger:add_link" %}' method='post' autocomplete='off'>
       {% csrf_token %}
-      {{ create_form|linebreaks }}
-      <input type='submit' name='create_form' value='Create'>
+      {{ add_link_form|linebreaks }}
+      <input type='submit' name='add_link_form' value='Add'>
     </form>
   </div>
   <div class='buttons'>
     <!-- back to login -->
-    <a href='{% url "blogger:login" %}'>
+    <a href='{% url "blogger:index" %}'>
       <div class='section button'>
-        Back
+        Back to index
       </div>
     </a>
   </div>

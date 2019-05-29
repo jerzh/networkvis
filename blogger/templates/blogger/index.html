@@ -9,6 +9,7 @@
 </head>
 
 <body>
+  <!-- display messages -->
   {% if messages %}
   <ul class="messages">
       {% for message in messages %}
@@ -17,27 +18,32 @@
   </ul>
   {% endif %}
 
+  <!-- form to set setting (which determines which network to display) -->
   <form action='{% url "blogger:index" %}' method='post'>
     {% csrf_token %}
     {{ setting_form }}
     <input type='submit' name='setting_form' value='Change'>
   </form>
+  <!-- go to 'help' page -->
   <a class='nodecor' href='{% url "blogger:help" %}'>
     <div class='section button'>
       Help
     </div>
   </a>
+  <!-- go to 'profile' page -->
   <a class='nodecor' href='{% url "blogger:profile" %}'>
     <div class='section button'>
       User profile
     </div>
   </a>
   <br>
-  <a class='nodecor' href='{% url "blogger:link" %}'>
+  <!-- go to 'link' page -->
+  <a class='nodecor' href='{% url "blogger:add_link" %}'>
     <div class='section button'>
       Add link
     </div>
   </a>
+  <!-- logout (redirects to login) -->
   <a class='nodecor' href='{% url "blogger:logout" %}'>
     <div class='section button'>
       Logout

@@ -7,6 +7,7 @@
 </head>
 
 <body class='flex'>
+  <!-- display messages -->
   {% if messages %}
   <ul class="messages">
       {% for message in messages %}
@@ -15,10 +16,13 @@
   </ul>
   {% endif %}
 
+  <!-- display name + username -->
   <div class='main section padded'>
     <h1> {{ name }} </h1>
     <p> Username: {{ username }} </p>
   </div>
+  <!-- forms to change things (with permission) -->
+  {% if change %}
   <div class='main section padded' style='display: flex; flex-direction: row; justify-content: space-around; align-items: center;'>
     <form action='{% url "blogger:profile" %}' method='post' autocomplete='off'>
       {% csrf_token %}
@@ -31,16 +35,32 @@
       <input type='submit' name='password_form' value='Change'>
     </form>
   </div>
+  {% endif %}
+
   <div class='buttons'>
+    <!-- decide whether to go back to index or a specific page (the page the
+    user was last on) -->
+    {% if page %}
+    <a href='{% url "blogger:page" page %}'>
+      <div class='section button'>
+        Back to page
+      </div>
+    </a>
+    {% else %}
     <a href='{% url "blogger:index" %}'>
       <div class='section button'>
         Back to index
       </div>
     </a>
+    {% endif %}
+
+    <!-- delete account (with permission) -->
+    {% if change %}
     <a href='{% url "blogger:delete" %}'>
       <div class='section button'>
         Delete account
       </div>
     </a>
+    {% endif %}
   </div>
 </body>

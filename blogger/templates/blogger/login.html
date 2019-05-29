@@ -7,6 +7,7 @@
 </head>
 
 <body class='flex'>
+  <!-- display messages -->
   {% if messages %}
   <ul class="messages">
       {% for message in messages %}
@@ -15,6 +16,7 @@
   </ul>
   {% endif %}
 
+  <!-- welcome message + login form -->
   <div class='main section padded'>
     <h1> Welcome to NetVis Blogger! Login below or create a new account. </h1>
     <form action='{% url "blogger:login" %}' method='post' autocomplete='off'>
@@ -23,12 +25,14 @@
       <input type='submit' name='login_form' value='Login'>
     </form>
   </div>
+  <!-- go to 'create' page -->
   <div class='buttons'>
     <a href='{% url "blogger:create" %}'>
       <div class='section button'>
         Create a new account
       </div>
     </a>
+    <!-- go to 'help' page -->
     <a href='{% url "blogger:help" %}'>
       <div class='section button'>
         Where am I?

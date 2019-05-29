@@ -1,8 +1,9 @@
 @import url('general.css');
 
-#title {
-  /* background-color: red; */
-  text-align: center;
+#title-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 #content {

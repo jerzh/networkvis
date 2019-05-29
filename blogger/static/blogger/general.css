@@ -51,6 +51,11 @@ a {
   text-decoration: none;
 }
 
+.low-margin {
+  margin: 0;
+  margin-left: 10px;
+}
+
 .nodecor {
   text-decoration: none;
 }
