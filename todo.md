@@ -3,6 +3,12 @@ Probably going to use one of these libraries:
 - ~~[graph-tool](https://graph-tool.skewed.de/static/doc/quickstart.html)~~
 
 ~~I might also have to learn how to use [React](https://reactjs.org/) for this rip~~
+Actually I'm reconsidering bringing in React to make live updates nicer!
+
+To do:
+- Add functionality for links: add custom links from index, add link descriptions to pages, make a page to display a link, allow deletion of custom links
+- Fix inconsistencies with Markdown (formatting and unformatting sometimes changes the original text)
+  - If there are line breaks, they disappear upon focus
 
 Goals (in order of importance):
 - Display a graph &#x2713;

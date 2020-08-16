@@ -59,8 +59,8 @@ class ChangePasswordForm(forms.Form):
     new_password = forms.CharField(max_length=100, widget=forms.PasswordInput)
 
 
-# add link form
-class AddLinkForm(forms.ModelForm):
-    class Meta:
-        model = Link
-        fields = ['source', 'target', 'color']
+# add link form (deprecated)
+# class AddLinkForm(forms.ModelForm):
+#     class Meta:
+#         model = Link
+#         fields = ['source', 'target', 'color']

@@ -91,3 +91,9 @@ https://stackoverflow.com/questions/6786963/background-color-in-forms
 https://stackoverflow.com/questions/17523263/how-to-create-password-field-in-model-django
 https://stackoverflow.com/questions/25386119/whats-the-difference-between-a-onetoone-manytomany-and-a-foreignkey-field-in-d
 https://stackoverflow.com/questions/53513/how-do-i-check-if-a-list-is-empty
+
+I have continued work on this project after I turned it in. Here are other sources that I used (again, sorted by website):
+https://stackoverflow.com/questions/5338716/get-multiple-elements-by-id
+https://stackoverflow.com/questions/10922885/uncaught-syntaxerror-unexpected-identifier
+https://stackoverflow.com/questions/805107/creating-multiline-strings-in-javascript
+https://stackoverflow.com/questions/2559318/how-to-check-for-an-undefined-or-null-variable-in-javascript

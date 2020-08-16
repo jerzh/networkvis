@@ -31,7 +31,11 @@ class Link(models.Model):
     # stores Page id's
     source = models.CharField(max_length=10)
     target = models.CharField(max_length=10)
+    authors = ArrayField(models.CharField(max_length=10), default=admin)
     color = models.CharField(max_length=20)
+    description = models.CharField(default='', max_length=300)
+    desc_color = models.CharField(max_length=20, default='#444444')
+    content = models.TextField(default='')
 
 
 class User(models.Model):

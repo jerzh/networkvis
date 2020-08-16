@@ -2,7 +2,8 @@ from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.urls import reverse
 from django.shortcuts import render, get_object_or_404
 from .models import Setting, Page, Link, User
-from .forms import SettingForm, AddPageForm, DelForm, DelFormPassword, LoginForm, CreateForm, ChangeNameForm, ChangePasswordForm, AddLinkForm
+from .forms import SettingForm, AddPageForm, DelForm, DelFormPassword, LoginForm, CreateForm, ChangeNameForm, ChangePasswordForm
+# AddLinkForm (deprecated)
 # framework for sending alerts to users
 from django.contrib import messages
 # hashing passwords!
@@ -111,6 +112,22 @@ def index(request):
                 # submitted from
                 Link(source=id, target=p.id, color='green').save()
                 messages.success(request, 'Page added successfully')
+        # process add_link_form (it's the same AddPageForm but you click the
+        # 'Link' button instead)
+        elif 'add_link_form' in request.POST:
+            id = request.POST['id']
+            form = AddPageForm(request.POST)
+            if form.is_valid():
+                if not Page.objects.filter(title=form.cleaned_data['title']):
+                    messages.error(request, 'Page not found')
+                    return HttpResponseRedirect(reverse('blogger:index'))
+                target = Page.objects.get(title=form.cleaned_data['title']).id
+                l = Link(source=id, target=target, authors=[u.id], \
+                    color=form.cleaned_data['color'], \
+                    description=form.cleaned_data['description'], \
+                    content=form.cleaned_data['content'])
+                l.save()
+                messages.success(request, 'Link added successfully')
         # process del_page_form
         elif 'del_page_form' in request.POST:
             id = request.POST['id']
@@ -150,10 +167,11 @@ def profile(request):
             form = ChangePasswordForm(request.POST)
             if form.is_valid():
                 # if old password matches, set password to new password
-                if form.cleaned_data['old_password'] != u.password:
+                if not hashers.check_password(form.cleaned_data['old_password'], u.password):
                     messages.error(request, 'Incorrect old password')
                 else:
-                    u.password = form.cleaned_data['new_password']
+                    u.password = hashers.make_password(form.cleaned_data['new_password'])
+                    u.save()
                     messages.success(request, 'Password changed successfully')
         return HttpResponseRedirect(reverse('blogger:profile'))
     change_name_form = ChangeNameForm()
@@ -163,6 +181,7 @@ def profile(request):
         'username': u.username,
         'change': True,
         'page': request.session['page'],
+        'link': request.session['link'],
         'name_form': change_name_form,
         'password_form': change_password_form,
     })
@@ -171,7 +190,7 @@ def profile(request):
 # view user page (similar to profile page but with no edit capabilities)
 def user(request, id):
     # if it's the user that's logged in, just redirect to their profile page
-    if id == request.session['user']:
+    if int(id) == request.session['user']:
         return HttpResponseRedirect(reverse('blogger:profile'))
     u = User.objects.get(id=id)
     return render(request, 'blogger/profile.html', {
@@ -179,6 +198,7 @@ def user(request, id):
         'username': u.username,
         'change': False,
         'page': request.session['page'],
+        'link': request.session['link'],
     })
 
 
@@ -204,30 +224,40 @@ def delete(request):
     })
 
 
-# add link page
-def add_link(request):
-    # process add link form
-    if request.method == 'POST':
-        form = AddLinkForm(request.POST)
-        if form.is_valid():
-            l = form.save()
-            if (not Page.objects.filter(title=l.source)) or (not Page.objects.filter(title=l.target)):
-                messages.error(request, 'Page(s) not found')
-                return HttpResponseRedirect(reverse('blogger:add_link'))
-            else:
-                l.source = Page.objects.get(title=l.source).id
-                l.target = Page.objects.get(title=l.target).id
-                l.save()
-                return HttpResponseRedirect(reverse('blogger:index'))
-    add_link_form = AddLinkForm()
-    return render(request, 'blogger/add_link.html', {
-        'add_link_form': add_link_form,
-    })
+# add link page (deprecated)
+# def add_link(request):
+#     # process add link form
+#     if request.method == 'POST':
+#         form = AddLinkForm(request.POST)
+#         if form.is_valid():
+#             l = form.save()
+#             if (not Page.objects.filter(title=l.source)) or (not Page.objects.filter(title=l.target)):
+#                 messages.error(request, 'Page(s) not found')
+#                 return HttpResponseRedirect(reverse('blogger:add_link'))
+#             else:
+#                 l.source = Page.objects.get(title=l.source).id
+#                 l.target = Page.objects.get(title=l.target).id
+#                 l.save()
+#                 return HttpResponseRedirect(reverse('blogger:index'))
+#     add_link_form = AddLinkForm()
+#     return render(request, 'blogger/add_link.html', {
+#         'add_link_form': add_link_form,
+#     })
 
 
 # page displaying a link
 def link(request, id):
-    return HttpResponse('hi')
+    request.session['page'] = id
+    request.session['link'] = True
+    l = get_object_or_404(Link, id=id)
+    if request.method == 'POST':
+        pageHelperPost(request, id, l)
+        return HttpResponseRedirect(reverse('blogger:link', args=(id,)))
+    else:
+        source = get_object_or_404(Page, id=l.source)
+        target = get_object_or_404(Page, id=l.target)
+        title = 'Link between ' + source.title + ' and ' + target.title
+        return pageHelper(request, id, l, title, [source, target])
 
 
 # logout page (not actually a page, just redirects)
@@ -284,9 +314,9 @@ def network_json(request):
             # you can't delete 'index'
             if page.title == 'index':
                 node_data['deletable'] = 'false'
+
             # put 'Visit page' link
-            else:
-                node_data['innerHTML'] += '<a href=' + reverse('blogger:page', args=(page.id,)) + '> Visit page </a>'
+            node_data['innerHTML'] += '<a href=' + reverse('blogger:page', args=(page.id,)) + '> Visit page </a>'
 
             data['nodes_data'].append(node_data)
 
@@ -306,64 +336,110 @@ def network_json(request):
 # display a page
 def page(request, id):
     request.session['page'] = id
-    # when 'save changes' is clicked
+    request.session['link'] = False
+    p = get_object_or_404(Page, id=id)
+
     if request.method == 'POST':
-        p = get_object_or_404(Page, id=id)
-        # save all of the changes
-        p.title = request.POST['title']
-        p.description = request.POST['description']
-        p.content = request.POST['content']
-        p.color = request.POST['color']
-        p.desc_color = request.POST['desc-color']
-        # add new author if it was added
-        if request.POST['author'] != '' and request.POST['author'] != '+':
-            if not User.objects.filter(username=request.POST['author']):
-                messages.error(request, 'User not found')
-            else:
-                user_id = User.objects.get(username=request.POST['author']).id
-                if user_id in p.authors:
-                    messages.error(request, 'User is already an author')
-                else:
-                    p.authors.append(user_id)
+        p.title = pageHelperPost(request, id, p)
         p.save()
         return HttpResponseRedirect(reverse('blogger:page', args=(id,)))
     else:
-        p = get_object_or_404(Page, id=id)
+        l_source = Link.objects.filter(source=id)
+        l_target = Link.objects.filter(target=id)
 
-        # p.authors contains User id's, so turn them into User objects
-        # decide whether page should be editable based on whether there are
-        # 'admin' or 'admin-frozen' authors
-        authors = []
-        admin_frozen = False
-        admin = False
-        editable = False
-        addable = True
-        if not p.authors:
-            p.authors.append('admin')
-        for author in p.authors:
-            if author == 'admin-frozen':
-                admin_frozen = True
-            elif author == 'admin':
-                admin = True
-            else:
-                if int(author) == request.session['user']:
-                    editable = True
-                authors.append(get_object_or_404(User, id=author))
-        if admin_frozen:
-            editable = False
-            addable = False
-        elif admin:
-            editable = True
-            addable = False
-        return render(request, 'blogger/page.html', {
-                'id': id,
-                'title': p.title,
-                'admin': admin,
-                'authors': authors,
-                'description': markdown.markdown(p.description, safe_mode=True),
-                'content': markdown.markdown(p.content, safe_mode=True),
-                'color': p.color,
-                'desc_color': p.desc_color,
-                'editable': editable,
-                'addable': addable,
+        # throw all of the links into an array (I mostly did this so that I
+        # wouldn't have to distinguish whether this page is the link's source
+        # or target)
+        links = []
+        for l in l_source:
+            links.append({
+                'id': l.id,
+                'title': get_object_or_404(Page, id=l.target).title,
+                'authors': l.authors,
+                'color': l.color,
+                'description': l.description,
+                'content': l.content,
             })
+        for l in l_target:
+            links.append({
+                'id': l.id,
+                'title': get_object_or_404(Page, id=l.source).title,
+                'authors': l.authors,
+                'color': l.color,
+                'description': l.description,
+                'content': l.content,
+            })
+
+        return pageHelper(request, id, p, p.title, links)
+
+# helper method for 'page' and 'link' views
+def pageHelper(request, id, p, title, links):
+    # determine whether p is a page or link
+    page_type = ''
+    if (isinstance(p, Page)):
+        page_type = 'page'
+    elif (isinstance(p, Link)):
+        page_type = 'link'
+
+    # p.authors contains User id's, so turn them into User objects
+    # decide whether page should be editable based on whether there are
+    # 'admin' or 'admin-frozen' authors
+    authors = []
+    admin_frozen = False
+    admin = False
+    editable = False
+    addable = True
+    if not p.authors:
+        p.authors.append('admin')
+    for author in p.authors:
+        if author == 'admin-frozen':
+            admin_frozen = True
+        elif author == 'admin':
+            admin = True
+        else:
+            if int(author) == request.session['user']:
+                editable = True
+            authors.append(get_object_or_404(User, id=author))
+    if admin_frozen:
+        editable = False
+        addable = False
+    elif admin:
+        editable = True
+        addable = False
+
+    return render(request, 'blogger/page.html', {
+            'id': id,
+            'page_type': page_type,
+            'title': title,
+            'admin': admin,
+            'authors': authors,
+            # 'description': markdown.markdown(p.description, safe_mode=True),
+            'description': p.description,
+            # 'content': markdown.markdown(p.content, safe_mode=True),
+            'content': p.content,
+            'links': links,
+            'color': p.color,
+            'desc_color': p.desc_color,
+            'editable': editable,
+            'addable': addable,
+        })
+
+# helper method 2 for 'page' and 'link' views: when 'save changes' is clicked
+def pageHelperPost(request, id, p):
+    # save all of the changes
+    p.description = request.POST['description']
+    p.content = request.POST['content']
+    p.color = request.POST['color']
+    p.desc_color = request.POST['desc-color']
+    # add new author if it was added
+    if request.POST['author'] != '' and request.POST['author'] != '+':
+        if not User.objects.filter(username=request.POST['author']):
+            messages.error(request, 'User not found')
+        else:
+            user_id = User.objects.get(username=request.POST['author']).id
+            if user_id in p.authors:
+                messages.error(request, 'User is already an author')
+            else:
+                p.authors.append(user_id)
+    p.save()
+    return request.POST['title']

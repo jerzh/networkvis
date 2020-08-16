@@ -3,11 +3,11 @@
 <head>
   <!-- for converting markdown to HTML and back -->
   <script src='https://cdnjs.cloudflare.com/ajax/libs/markdown-it/8.4.2/markdown-it.min.js'></script>
-  <script src='https://unpkg.com/turndown/dist/turndown.js'></script>
+  <!-- <script src='https://unpkg.com/turndown/dist/turndown.js'></script> -->
   <!-- <script src='https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js'></script> -->
   <link rel='stylesheet' type='text/css' href='{% static "blogger/page.css" %}' />
   <link rel='icon' type='image/png' href='https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Banana-Single.jpg/1200px-Banana-Single.jpg'>
-  <title> {{ title }} </title>
+  <title> {{ title|safe }} </title>
 </head>
 
 <body>
@@ -24,7 +24,7 @@
   <div id='title-container' class='section' contenteditable='{{ editable }}' style='background-color: {{ color }};'>
     <!-- title -->
     <div id='title' style='display: inline-block;'>
-      <h1> {{ title }} </h1>
+      <h1> {{ title|safe }} </h1>
     </div>
     <!-- authors (plus options defining whether they are editable etc.) -->
     <div class='buttons' contenteditable='false' style='display: inline-block;'>
@@ -47,12 +47,39 @@
   </div>
   <!-- description (editable with permission, customizable color) -->
   <div id='description' class='section padded' contenteditable='{{ editable|lower }}' style='background-color: {{ desc_color }};'>
-    {{ description|safe }}
+    <p> Description </p>
   </div>
   <!-- content (editable with permission) -->
   <div id='content' class='section padded' contenteditable='{{ editable|lower }}'>
-    {{ content|safe }}
+    <p> Content </p>
   </div>
+  {% if page_type == 'page' %}
+    {% if links %}
+      {% for link in links %}
+      <a class='nodecor' href='{% url "blogger:link" link.id %}'>
+        <div class='link section padded' style='background-color: {{ link.color }};'>
+          {% if link.description %}
+          <p> Link to {{ link.title }}: {{ link.description|safe }} </p>
+          {% else %}
+          <p> Link to {{ link.title }} </p>
+          {% endif %}
+        </div>
+      </a>
+      {% endfor %}
+    {% endif %}
+  {% elif page_type == 'link' %}
+    {% for page in links %}
+    <a class='nodecor' href='{% url "blogger:page" page.id %}'>
+      <div class='link section padded' style='background-color: {{ page.color }};'>
+        {% if page.description %}
+        <p> {{ page.title }}: {{ page.description|safe }} </p>
+        {% else %}
+        <p> {{ link.title }} </p>
+        {% endif %}
+      </div>
+    </a>
+    {% endfor %}
+  {% endif %}
   <div class='buttons'>
     <!-- set title + authors color -->
     <div id='color' class='section button' contenteditable='{{ editable|lower }}'>{{ color }}</div>
@@ -60,7 +87,11 @@
     <div id='desc-color' class='section button' contenteditable='{{ editable|lower }}'>{{ desc_color }}</div>
     <!-- 'save changes' button, submits form with values of hidden inputs as
     defined by the Javascript -->
+    {% if page_type == 'page' %}
     <form id='save-form' action='{% url "blogger:page" id %}' method='post'>
+    {% elif page_type == 'link' %}
+    <form id='save-form' action='{% url "blogger:link" id %}' method='post'>
+    {% endif %}
       {% csrf_token %}
       <input id='input-title' type='hidden' name='title'>
       <input id='input-desc' type='hidden' name='description'>
@@ -84,6 +115,8 @@
   </div>
   <script>
     // transfer Django template variables to Javascript variables
+    var desc_text = `{{ description|safe }}`;
+    var content_text = `{{ content|safe }}`;
     var editable = {{ editable|lower }};
     var addable = {{ addable|lower }};
   </script>

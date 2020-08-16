@@ -41,11 +41,19 @@
     <!-- decide whether to go back to index or a specific page (the page the
     user was last on) -->
     {% if page %}
-    <a href='{% url "blogger:page" page %}'>
-      <div class='section button'>
-        Back to page
-      </div>
-    </a>
+      {% if link %}
+        <a href='{% url "blogger:link" page %}'>
+          <div class='section button'>
+            Back to link page
+          </div>
+        </a>
+      {% else %}
+        <a href='{% url "blogger:page" page %}'>
+          <div class='section button'>
+            Back to page
+          </div>
+        </a>
+      {% endif %}
     {% else %}
     <a href='{% url "blogger:index" %}'>
       <div class='section button'>

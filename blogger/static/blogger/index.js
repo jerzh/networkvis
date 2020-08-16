@@ -265,6 +265,7 @@ d3.json('network_json', {}).then(function(data) {
     var form = "<form action='" + formAction + "' method='post' autocomplete='off'>"
       + addPageForm
       + "<input type='submit' name='add_page_form' value='Add'>"
+      + "<input type='submit' name='add_link_form' value='Link'>"
       + "<input type='hidden' name='id' value='" + d.id + "'>"
       + "</form>";
     expand(d, this, form);
