@@ -11,7 +11,7 @@ urlpatterns = [
     path('profile', views.profile, name='profile'),
     path('user/<str:id>', views.user, name='user'),
     path('delete', views.delete, name='delete'),
-    # path('add_link', views.add_link, name='add_link'),
+    path('add_link', views.add_link, name='add_link'),
     path('link/<str:id>', views.link, name='link'),
     path('logout', views.logout, name='logout'),
     path('network_json', views.network_json),

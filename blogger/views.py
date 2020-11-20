@@ -2,7 +2,7 @@ from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.urls import reverse
 from django.shortcuts import render, get_object_or_404
 from .models import Setting, Page, Link, User
-from .forms import SettingForm, AddPageForm, DelForm, DelFormPassword, LoginForm, CreateForm, ChangeNameForm, ChangePasswordForm
+from .forms import SettingForm, AddPageForm, DelForm, DelFormPassword, LoginForm, CreateForm, ChangeNameForm, ChangePasswordForm, AddLinkForm
 # AddLinkForm (deprecated)
 # framework for sending alerts to users
 from django.contrib import messages
@@ -224,28 +224,28 @@ def delete(request):
     })
 
 
-# add link page (deprecated)
-# def add_link(request):
-#     # process add link form
-#     if request.method == 'POST':
-#         form = AddLinkForm(request.POST)
-#         if form.is_valid():
-#             l = form.save()
-#             if (not Page.objects.filter(title=l.source)) or (not Page.objects.filter(title=l.target)):
-#                 messages.error(request, 'Page(s) not found')
-#                 return HttpResponseRedirect(reverse('blogger:add_link'))
-#             else:
-#                 l.source = Page.objects.get(title=l.source).id
-#                 l.target = Page.objects.get(title=l.target).id
-#                 l.save()
-#                 return HttpResponseRedirect(reverse('blogger:index'))
-#     add_link_form = AddLinkForm()
-#     return render(request, 'blogger/add_link.html', {
-#         'add_link_form': add_link_form,
-#     })
+# add link page
+def add_link(request):
+    # process add link form
+    if request.method == 'POST':
+        form = AddLinkForm(request.POST)
+        if form.is_valid():
+            l = form.save()
+            if (not Page.objects.filter(title=l.source)) or (not Page.objects.filter(title=l.target)):
+                messages.error(request, 'Page(s) not found')
+                return HttpResponseRedirect(reverse('blogger:add_link'))
+            else:
+                l.source = Page.objects.get(title=l.source).id
+                l.target = Page.objects.get(title=l.target).id
+                l.save()
+                return HttpResponseRedirect(reverse('blogger:index'))
+    add_link_form = AddLinkForm()
+    return render(request, 'blogger/add_link.html', {
+        'add_link_form': add_link_form,
+    })
 
 
-# page displaying a link
+# page displaying a link (deprecated)
 def link(request, id):
     request.session['page'] = id
     request.session['link'] = True

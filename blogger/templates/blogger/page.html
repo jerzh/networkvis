@@ -53,7 +53,7 @@
   <div id='content' class='section padded' contenteditable='{{ editable|lower }}'>
     <p> Content </p>
   </div>
-  {% if page_type == 'page' %}
+  <!-- {% if page_type == 'page' %}
     {% if links %}
       {% for link in links %}
       <a class='nodecor' href='{% url "blogger:link" link.id %}'>
@@ -79,7 +79,7 @@
       </div>
     </a>
     {% endfor %}
-  {% endif %}
+  {% endif %} -->
   <div class='buttons'>
     <!-- set title + authors color -->
     <div id='color' class='section button' contenteditable='{{ editable|lower }}'>{{ color }}</div>
