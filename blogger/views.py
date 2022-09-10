@@ -82,13 +82,15 @@ def help(request):
 
 # index page (displays network)
 def index(request):
+    if 'user' not in request.session:
+        return index_view(request)
+    u = User.objects.get(id=request.session['user'])
     # request.session['page'] tells us which page to go back to if the user got
     # to a page via another
     request.session['page'] = None
     # determine which button(s) to display on the 'help' page
     if request.session['helped'] == 'helped':
         request.session['helped'] = 'index'
-    u = User.objects.get(id=request.session['user'])
     # process form, whichever was submitted
     if request.method == 'POST':
         # process setting_form
@@ -149,6 +151,14 @@ def index(request):
                 'add_page_form': add_page_form,
                 'del_page_form': del_page_form,
             })
+
+
+# if user is not logged in, view only
+def index_view(request):
+    request.session['helped'] = 'index'
+    return render(request, 'blogger/index.html', {
+        'view': True,
+    })
 
 
 # profile page
@@ -389,6 +399,10 @@ def pageHelper(request, id, p, title, links):
     admin = False
     editable = False
     addable = True
+    view = False
+    # if user is not logged in, view only
+    if 'user' not in request.session:
+        view = True
     if not p.authors:
         p.authors.append('admin')
     for author in p.authors:
@@ -397,7 +411,7 @@ def pageHelper(request, id, p, title, links):
         elif author == 'admin':
             admin = True
         else:
-            if int(author) == request.session['user']:
+            if not view and int(author) == request.session['user']:
                 editable = True
             authors.append(get_object_or_404(User, id=author))
     if admin_frozen:
@@ -422,6 +436,7 @@ def pageHelper(request, id, p, title, links):
             'desc_color': p.desc_color,
             'editable': editable,
             'addable': addable,
+            'view': view,
         })
 
 # helper method 2 for 'page' and 'link' views: when 'save changes' is clicked

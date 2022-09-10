@@ -9,6 +9,8 @@
 </head>
 
 <body>
+  {% if view %}
+  {% else %}
   <!-- display messages -->
   {% if messages %}
   <ul class="messages">
@@ -49,6 +51,7 @@
       Logout
     </div>
   </a>
+  {% endif %}
 
   <div id='graph'>
   </div>

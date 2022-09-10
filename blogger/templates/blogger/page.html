@@ -81,6 +81,8 @@
     {% endfor %}
   {% endif %} -->
   <div class='buttons'>
+    {% if view %}
+    {% else %}
     <!-- set title + authors color -->
     <div id='color' class='section button' contenteditable='{{ editable|lower }}'>{{ color }}</div>
     <!-- set description color -->
@@ -107,6 +109,7 @@
     <div id='revert' class='section button'>
       Revert changes
     </div>
+    {% endif %}
     <a href='{% url "blogger:index" %}'>
       <div class='section button'>
         Back to index
